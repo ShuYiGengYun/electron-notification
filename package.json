@@ -1,0 +1,19 @@
+{
+  "dependencies": {
+    "electron": "^5.0.4",
+    "electron-windows-notifications": "^3.0.2",
+    "node-notifier": "^5.4.0"
+  },
+  "name": "electron-study",
+  "id": "electron-study",
+  "version": "1.0.0",
+  "main": "index.js",
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "electron ."
+  },
+  "author": "917293906@qq.com",
+  "license": "ISC",
+  "description": ""
+}
