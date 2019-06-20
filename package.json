@@ -1,7 +1,6 @@
 {
   "dependencies": {
     "electron": "^5.0.4",
-    "electron-windows-notifications": "^3.0.2",
     "node-notifier": "^5.4.0"
   },
   "name": "electron-study",

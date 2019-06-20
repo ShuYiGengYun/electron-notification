@@ -1,104 +1,98 @@
-const { app, BrowserWindow, Notification } = require('electron')
-const notifier = require('node-notifier');
+// Modules to control application life and create native browser window
+const {app, BrowserWindow, Notification} = require('electron')
 const path = require('path');
-
-
-// 保持对window对象的全局引用，如果不这么做的话，当JavaScript对象被
-// 垃圾回收的时候，window对象将会自动的关闭
-let win
-
-function readyInit() {
-    createWindow();
-    // createNotification();
-    createNotificationByNotifier();
-}
+const notifier = require('node-notifier');
+let mainWindow
 
 function createWindow () {
-    // 创建浏览器窗口。
-    win = new BrowserWindow({
-        width: 800,
-        height: 600,
-        webPreferences: {
-            nodeIntegration: true
-        }
-    })
-
-    // 加载index.html文件
-    // win.loadFile('index.html')
-    win.loadFile('notification.html')
-
-    // 打开开发者工具
-    win.webContents.openDevTools()
-
-    // 当 window 被关闭，这个事件会被触发。
-    win.on('closed', () => {
-        // 取消引用 window 对象，如果你的应用支持多窗口的话，
-        // 通常会把多个 window 对象存放在一个数组里面，
-        // 与此同时，你应该删除相应的元素。
-        win = null
-    })
-}
-
-/**
- * 通知
- * @returns {boolean}
- */
-function createNotification() {
-    if (!Notification.isSupported()) {
-        return false;
+  mainWindow = new BrowserWindow({
+    width: 800,
+    height: 600,
+    webPreferences: {
+      nodeIntegration: true
     }
-    const myNotification = new Notification({
-        title: 'HelloWorld',
-        body: '哈哈哈'
-    });
-    myNotification.show();
+  })
+  // mainWindow.loadFile('index.html')
+  mainWindow.loadFile('notification.html');
+  // mainWindow.webContents.openDevTools()
+
+  // Emitted when the window is closed.
+  mainWindow.on('closed', function () {
+    mainWindow = null
+  })
 }
 
-/**
- * notifier
- */
+
+/*官方文档notification*/
+function createNotificationByOfficial() {
+  let notification = new Notification({
+      title: 'Hello-World',
+      body: '恩恩',
+      icon:　'./images/1.jpg',
+  });
+  notification.show();
+}
+
+
+/*node-notifier*/
 function createNotificationByNotifier() {
-   notifier.notify({
-       title: '进击的巨人',
-       message: '刚毅且温柔的女汉子|三笠·阿克曼',
-       // icon: 'https://imgsrc.baidu.com/baike/pic/item/77094b36acaf2edd7747e997831001e93901931e.jpg',
-       icon: path.join(__dirname, '/image/1.jpg'),
-       sound: true,
-       wait: false,
-   }, function (error, response) {
-       console.log(response);
-       console.log(error);
-   });
-   notifier.on('click', function () {
-       console.log(1);
-   })
-   notifier.on('timeout', function () {
-       console.log(2);
-   })
+  const title = '进击的巨人'
+  const url = 'http://m.cosdao.com/comic1/12300/b-0-4.html'
+  const options = {
+    dir: 'ltr', // ltr rtl auto
+    badge: '../src/assets/1.jpg',
+    lang: 'zh-CN',
+    body: '《进击的巨人》（进撃の巨人），是日本漫画家谏山创创作的少年漫画作品，于2009年在讲谈社旗下的漫画杂志《别册少年Magazine》上开始连载。',
+    // icon: 'https://ss0.bdstatic.com/5aV1bjqh_Q23odCf/static/superman/img/logo_top_86d58ae1.png',
+    // image: 'https://ss0.bdstatic.com/5aV1bjqh_Q23odCf/static/superman/img/logo_top_86d58ae1.png',
+    icon: path.join(__dirname, 'images/1.jpg'),
+    // image: require('./assets/2.jpg'),
+    requireInteraction: false, //是否需要用户操作
+    data: [url],
+  };
+  notifier.notify(
+    {
+      title: title,
+      message: options.body,
+      icon: options.icon, // Absolute path (doesn't work on balloons)
+      sound: true, // Only Notification Center or Windows Toasters
+      wait: true // Wait with callback, until user action is taken against notification
+    },
+    function(err, response) {
+      // Response is response from notification
+      console.log(err);
+      console.log(response);
+    }
+  );
+
+  notifier.on('click', function(notifierObject, options) {
+    // Triggers if `wait: true` and user clicks notification
+    mainWindow.loadFile(url);
+  });
+
+  notifier.on('timeout', function(notifierObject, options) {
+    // Triggers if `wait: true` and notification closes
+  });
 }
 
+app.on('ready', readyinit)
 
-// Electron 会在初始化后并准备
-// 创建浏览器窗口时，调用这个函数。
-// 部分 API 在 ready 事件触发后才能使用。
-app.on('ready', readyInit)
+function readyinit() {
+  createWindow();
+  // createNotificationByOfficial();
+  createNotificationByNotifier();
+}
 
-// 当全部窗口关闭时退出。
-app.on('window-all-closed', () => {
-    // 在 macOS 上，除非用户用 Cmd + Q 确定地退出，
-    // 否则绝大部分应用及其菜单栏会保持激活。
-    if (process.platform !== 'darwin') {
-        app.quit()
-    }
+app.on('window-all-closed', function () {
+  // On macOS it is common for applications and their menu bar
+  // to stay active until the user quits explicitly with Cmd + Q
+  if (process.platform !== 'darwin') {
+    app.quit()
+  }
 })
 
-app.on('activate', () => {
-    // 在macOS上，当单击dock图标并且没有其他窗口打开时，
-    // 通常在应用程序中重新创建一个窗口。
-    if (win === null) {
-        createWindow()
-    }
+app.on('activate', function () {
+  if (mainWindow === null) {
+    createWindow()
+  }
 })
-
-// 在这个文件中，你可以续写应用剩下主进程代码。
-// 也可以拆分成几个文件，然后用 require 导入。

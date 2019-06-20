@@ -1,13 +1,87 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <meta charset="UTF-8">
     <title>Hello World!</title>
-</head>
-<body>
-<h1>Hello World!</h1>
-    We are using node <script>document.write(process.versions.node)</script>,
-    Chrome <script>document.write(process.versions.chrome)</script>,
+  </head>
+  <body>
+    <h1>Hello World!</h1>
+    <!-- All of the Node.js APIs are available in this renderer process. -->
+    We are using Node.js <script>document.write(process.versions.node)</script>,
+    Chromium <script>document.write(process.versions.chrome)</script>,
     and Electron <script>document.write(process.versions.electron)</script>.
-</body>
+    <button id="sendNotification" onclick="sendNotification()">测试通知</button>
+    <button id="sendNotificationTag" onclick="sendNotificationByTag()">测试通知Tag</button>
+    <script>
+      // You can also require other files to run in this process
+      // require('./renderer.js')
+      const checkNotificationPermission = function() {
+        // 先检查浏览器是否支持;
+        if (!("Notification" in window)) {
+          alert("This browser does not support desktop notification");
+          return false;
+          //  检查用户是否同意
+        } else if (Notification.permission === 'granted') {
+          return true;
+          //  向用户申请权限;
+        } else if (Notification.permission !== 'denied') {
+          Notification.requestPermission(function (permission) {
+            return permission === 'granted';
+          })
+        }
+      };
+      const bindEvents = function(notification) {
+        const events = ['click', 'show', 'error', 'close'];
+        events.forEach(function (event, index) {
+          notification[`on${event}`] = function () {
+            console.log(notification);
+            if (index === 0) {
+              window.location.href = 'http://m.cosdao.com/comic1/12300/b-0-4.html';
+            }
+          }
+        })
+      }
+      const sendNotification = function() {
+        if (!checkNotificationPermission()){
+          return false;
+        }
+        const title = '进击的巨人'
+        const options = {
+          dir: 'ltr', // ltr rtl auto
+          badge: './images/1.jpg',
+          lang: 'zh-CN',
+          body: '《进击的巨人》（进撃の巨人），是日本漫画家谏山创创作的少年漫画作品，于2009年在讲谈社旗下的漫画杂志《别册少年Magazine》上开始连载。',
+          // icon: 'https://ss0.bdstatic.com/5aV1bjqh_Q23odCf/static/superman/img/logo_top_86d58ae1.png',
+          // image: 'https://ss0.bdstatic.com/5aV1bjqh_Q23odCf/static/superman/img/logo_top_86d58ae1.png',
+          icon: './images/1.jpg',
+          image: './images/1.jpg', // electron 无效;
+          requireInteraction: false, //是否需要用户操作
+        };
+        /*即将支持的属性*/
+        /*{
+          silent: false,
+          noscreen: false,
+          sticky: false,
+        }
+        */
+        /*
+        * 移动端调试Notification小米浏览器(V10.8.1),UC浏览器(V12.5.0.1030)不支持
+        * 谷歌浏览器(不支持发送或者接收通知)
+        * */
+        const notification = new Notification(title, options);
+        bindEvents(notification);
+      }
+      /*tag属性*/
+      const sendNotificationByTag = function() {
+        if (!checkNotificationPermission()) {
+          return false;
+        }
+        for (var i = 0; i <　10; i++) {
+          var notification = new Notification(`Hi ! ${i}`, {
+            tag: 'soManyNotification',
+          });
+        }
+      };
+    </script>
+  </body>
 </html>

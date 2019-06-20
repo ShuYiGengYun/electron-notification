@@ -35,6 +35,7 @@ export default {
         return false;
       }
       const title = '进击的巨人'
+      const url = 'http://m.cosdao.com/comic1/12300/b-0-4.html'
       const options = {
         dir: 'ltr', // ltr rtl auto
         badge: '../src/assets/1.jpg',
@@ -45,6 +46,7 @@ export default {
         icon: require('./assets/1.jpg'),
         // image: require('./assets/2.jpg'),
         requireInteraction: false, //是否需要用户操作
+        data: [url]
       };
       /*即将支持的属性*/
       /*{
@@ -66,7 +68,7 @@ export default {
         notification[`on${event}`] = function () {
           console.log(notification);
           if (index === 0) {
-            window.open('http://m.cosdao.com/comic1/12300/b-0-4.html')
+            window.open(notification.data[0])
           }
         }
       })
